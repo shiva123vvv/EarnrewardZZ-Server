@@ -1,0 +1,76 @@
+[dotenv@17.2.3] injecting env (2) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+Server running on port 5000
+✅ PostgreSQL Connected.
+Sync/Seed Error: Error
+    at Query.run (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\sequelize\lib\dialects\postgres\query.js:50:25)
+    at C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\sequelize\lib\sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async User.sync (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\sequelize\lib\model.js:984:11)
+    at async Sequelize.sync (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\sequelize\lib\sequelize.js:377:9)
+    at async syncAndSeed (C:\Users\shiva\OneDrive\Desktop\Funds\server\server.js:32:13)
+    at async Server.<anonymous> (C:\Users\shiva\OneDrive\Desktop\Funds\server\server.js:59:5) {
+  name: 'SequelizeDatabaseError',
+  parent: error: default for column "role" cannot be cast automatically to type "enum_Users_role"
+      at parseErrorMessage (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\pg-protocol\dist\parser.js:305:11)
+      at Parser.handlePacket (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\pg-protocol\dist\parser.js:143:27)
+      at Parser.parse (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\pg-protocol\dist\parser.js:37:38)
+      at Socket.<anonymous> (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\pg-protocol\dist\index.js:11:42)
+      at Socket.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:561:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      at Readable.push (node:internal/streams/readable:392:5)
+      at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+    length: 151,
+    severity: 'ERROR',
+    code: '42804',
+    detail: undefined,
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'tablecmds.c',
+    line: '14816',
+    routine: 'ATExecAlterColumnType',
+    sql: `ALTER TABLE "Users" ALTER COLUMN "role" DROP NOT NULL;ALTER TABLE "Users" ALTER COLUMN "role" SET DEFAULT 'user';DO 'BEGIN CREATE TYPE "public"."enum_Users_role" AS ENUM(''user'', ''admin'', ''super_admin''); EXCEPTION WHEN duplicate_object THEN null; END';ALTER TABLE "Users" ALTER COLUMN "role" TYPE "public"."enum_Users_role" USING ("role"::"public"."enum_Users_role");`,
+    parameters: undefined
+  },
+  original: error: default for column "role" cannot be cast automatically to type "enum_Users_role"
+      at parseErrorMessage (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\pg-protocol\dist\parser.js:305:11)
+      at Parser.handlePacket (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\pg-protocol\dist\parser.js:143:27)
+      at Parser.parse (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\pg-protocol\dist\parser.js:37:38)
+      at Socket.<anonymous> (C:\Users\shiva\OneDrive\Desktop\Funds\server\node_modules\pg-protocol\dist\index.js:11:42)
+      at Socket.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:561:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      at Readable.push (node:internal/streams/readable:392:5)
+      at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+    length: 151,
+    severity: 'ERROR',
+    code: '42804',
+    detail: undefined,
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'tablecmds.c',
+    line: '14816',
+    routine: 'ATExecAlterColumnType',
+    sql: `ALTER TABLE "Users" ALTER COLUMN "role" DROP NOT NULL;ALTER TABLE "Users" ALTER COLUMN "role" SET DEFAULT 'user';DO 'BEGIN CREATE TYPE "public"."enum_Users_role" AS ENUM(''user'', ''admin'', ''super_admin''); EXCEPTION WHEN duplicate_object THEN null; END';ALTER TABLE "Users" ALTER COLUMN "role" TYPE "public"."enum_Users_role" USING ("role"::"public"."enum_Users_role");`,
+    parameters: undefined
+  },
+  sql: `ALTER TABLE "Users" ALTER COLUMN "role" DROP NOT NULL;ALTER TABLE "Users" ALTER COLUMN "role" SET DEFAULT 'user';DO 'BEGIN CREATE TYPE "public"."enum_Users_role" AS ENUM(''user'', ''admin'', ''super_admin''); EXCEPTION WHEN duplicate_object THEN null; END';ALTER TABLE "Users" ALTER COLUMN "role" TYPE "public"."enum_Users_role" USING ("role"::"public"."enum_Users_role");`,
+  parameters: {}
+}
