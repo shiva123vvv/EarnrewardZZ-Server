@@ -23,6 +23,9 @@ app.use(express.json());
 const apiRoutes = require('./routes/api');
 const adminRoutes = require('./routes/admin'); // New
 
+// Health Check (Public)
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
 app.use('/api', apiRoutes);
 app.use('/api/admin', adminRoutes); // Mount admin routes
 
@@ -59,5 +62,6 @@ const syncAndSeed = async () => {
 
 app.listen(PORT, async () => {
     console.log(`Server running on port ${PORT}`);
+    // Trigger Restart: Timestamp 1706400000
     await syncAndSeed();
 });

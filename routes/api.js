@@ -7,10 +7,7 @@ const withdrawalController = require('../controllers/withdrawalController');
 const referralController = require('../controllers/referralController');
 
 // Public Webhooks / Postbacks
-const postbackController = require('../controllers/postbackController');
-router.get('/webhook/postback', postbackController.handlePostback);
-
-// Global Auth Middleware for all API routes (except maybe public callbacks if any)
+// Global Auth Middleware for all API routes
 router.use(authMiddleware);
 
 // --- User Routes ---
@@ -24,14 +21,17 @@ router.post('/referrals/verify', referralController.verifyReferral);
 // Earnings & Activity
 router.post('/earn', mainController.completeAction);
 router.get('/activity', mainController.getActivity);
+router.post('/user/credentials', mainController.updateCredentials);
 
-// --- Task Routes ---
-const taskController = require('../controllers/taskController');
-router.get('/tasks', taskController.getTasks);
-router.post('/tasks/start', taskController.startTask);
-router.post('/tasks/start-category', taskController.startCategory);
-router.get('/start-options', taskController.getActivePlatforms);
-router.get('/offerwalls/active', taskController.getActiveOfferwall); // Single-button offerwall
+// --- Wallet & Gifting ---
+const walletController = require('../controllers/walletController');
+router.get('/wallet', walletController.getWallet);
+router.post('/wallet/gift', walletController.giftCoins);
+
+// --- Rewarded Ads Routes ---
+const adController = require('../controllers/adController');
+router.get('/ads/status', adController.getAdStatus);
+router.post('/ads/reward', adController.claimAdReward);
 
 // --- Giveaway & Spin Routes ---
 const giveawayController = require('../controllers/giveawayController');

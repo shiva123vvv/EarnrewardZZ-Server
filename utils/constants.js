@@ -1,17 +1,17 @@
 const LIMITS = {
     free: {
-        incentive_tasks: 2,
-        rewarded_ads: 20,
-        surveys: 2,
-        premium_cpa: 0,
-        daily_earning_cap: 4,
+        incentive_tasks: 10,
+        rewarded_ads: 8,
+        surveys: 5,
+        premium_cpa: 2,
+        daily_earning_cap: 0.1,
     },
     pro: {
-        incentive_tasks: 3,
-        rewarded_ads: 35,
-        surveys: 3,
-        premium_cpa: 1,
-        daily_earning_cap: 10,
+        incentive_tasks: 20,
+        rewarded_ads: 16,
+        surveys: 10,
+        premium_cpa: 5,
+        daily_earning_cap: 0.2,
     }
 };
 

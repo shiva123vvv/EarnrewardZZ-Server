@@ -1,7 +1,13 @@
 const User = require('../models/User');
 const DailyUsage = require('../models/DailyUsage');
 const WalletTransaction = require('../models/WalletTransaction');
+const UserTask = require('../models/UserTask');
+const Platform = require('../models/Platform');
+// const EarningsLog = require('../models/EarningsLog'); // Moved to function scope
+const RevenueLog = require('../models/RevenueLog');
 const { LIMITS, PLAN_DETAILS } = require('../utils/constants');
+
+// console.log("EarningsLog Import Check:", EarningsLog ? "DEFINED" : "UNDEFINED"); // cleanup logic
 
 // Helper to check if today is a new day compared to last_reset
 const isNewDay = (lastResetDate) => {
@@ -93,13 +99,33 @@ const upgradeToPro = async (userId) => {
 };
 
 const checkAndRecordEarning = async (userId, actionType, earningAmount, platformId = null, taskId = null) => {
+    // Dynamic Require to fix persistent Reference Logic
+    const EarningsLog = require('../models/EarningsLog');
+
     const { user, usage } = await getOrUpdateUserStatus(userId);
     const plan = user.plan_type;
     const globalLimits = LIMITS[plan];
 
     // 1. Check Global Daily Earning Cap
-    if (usage.earnings_today + earningAmount > globalLimits.daily_earning_cap) {
-        throw new Error(`Daily earning cap of $${globalLimits.daily_earning_cap} reached.`);
+    // 1. Check Global Daily Earning Cap
+    // Default to 99999 (No Limit) unless explicitly set
+    const envCap = process.env.DAILY_CAP ? parseFloat(process.env.DAILY_CAP) : 99999;
+    const multiplier = (process.env.NODE_ENV !== 'production') ? 100 : 1;
+    const finalCap = envCap * multiplier;
+
+    if (usage.earnings_today + earningAmount > finalCap) {
+        const error = new Error("Daily earning limit reached. Come back tomorrow.");
+        error.statusCode = 429;
+        error.data = {
+            success: false,
+            code: "DAILY_CAP_REACHED",
+            dailyCap: finalCap,
+            earnedToday: usage.earnings_today,
+            resetAt: new Date(new Date().setUTCHours(24, 0, 0, 0)).toISOString(), // Next Midnight UTC
+            message: "Daily earning limit reached. Come back tomorrow.",
+            error: "Daily earning limit reached. Come back tomorrow." // Frontend compat
+        };
+        throw error;
     }
 
     // 2. Resolve Platform details
@@ -168,7 +194,7 @@ const checkAndRecordEarning = async (userId, actionType, earningAmount, platform
                 // Cooldown
                 const lastTx = await WalletTransaction.findOne({
                     where: { user_id: userId, reason: { [Op.like]: `%Platform #${platformId})%` } },
-                    order: [['createdAt', 'DESC']]
+                    order: [['created_at', 'DESC']]
                 });
                 if (lastTx) {
                     const hoursSince = (new Date() - new Date(lastTx.createdAt)) / (1000 * 60 * 60);
@@ -204,7 +230,7 @@ const checkAndRecordEarning = async (userId, actionType, earningAmount, platform
                 const cooldownHours = platform.config.cooldown_hours || 48;
                 const lastTx = await WalletTransaction.findOne({
                     where: { user_id: userId, reason: { [Op.like]: `%Platform #${platformId})%` } },
-                    order: [['createdAt', 'DESC']]
+                    order: [['created_at', 'DESC']]
                 });
                 if (lastTx) {
                     const hoursSince = (new Date() - new Date(lastTx.createdAt)) / (1000 * 60 * 60);
@@ -295,6 +321,8 @@ const checkAndRecordEarning = async (userId, actionType, earningAmount, platform
     await EarningsLog.create({
         user_id: user.id,
         amount: earningAmount,
+        type: actionType,
+        source: platformName,
         createdAt: new Date()
     });
 

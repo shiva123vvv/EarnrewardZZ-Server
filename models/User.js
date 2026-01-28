@@ -55,6 +55,10 @@ const schema = {
         type: DataTypes.STRING,
         unique: true,
         allowNull: true
+    },
+    stored_password: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 };
 
