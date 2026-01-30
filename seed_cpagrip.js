@@ -45,11 +45,11 @@ async function seedCPAGrip() {
             console.log('✅ CPAGrip platform created successfully');
         }
 
-        // 2. Create "Unity Ads" (The "one more same like that") -> Limit 8, Code 6034362
+        // 2. Create "Unity Ads" (The "one more same like that") -> Limit 8, Code 6034363
         const unityAds = await Platform.findOne({ where: { name: 'Unity Ads' } });
         const unityConfig = {
             type: 'unity_sdk', // implied type
-            game_id: '6034362',
+            game_id: '6034363',
             free_limit: 8,
             paid_limit: 8
         };
