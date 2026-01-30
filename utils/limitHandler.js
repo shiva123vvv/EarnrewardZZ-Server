@@ -73,7 +73,29 @@ const canUserPerformTask = async (userId, platformId) => {
             return { allowed: false, reason: `Daily limit reached for ${category} (${limit} per day)` };
         }
 
-        // 4. CHECK PLATFORM Earning Cap
+        // 4. CHECK PLATFORM SPECIFIC FREQUENCY LIMITS (Config)
+        // Checks config.free_limit, config.paid_limit, or config.frequency_cap
+        const platformConfig = platform.config || {};
+        let platformLimit = isPaid ? (platformConfig.paid_limit || platformConfig.frequency_cap) : (platformConfig.free_limit || platformConfig.frequency_cap);
+
+        // Ensure numeric
+        platformLimit = Number(platformLimit);
+
+        if (platformLimit > 0) {
+            const platformCount = await RevenueLog.count({
+                where: {
+                    user_id: userId,
+                    platform_name: platform.name,
+                    created_at: { [Op.gte]: dayStart }
+                }
+            });
+
+            if (platformCount >= platformLimit) {
+                return { allowed: false, reason: `Daily limit reached for ${platform.name} (${platformLimit} per day)` };
+            }
+        }
+
+        // 5. CHECK PLATFORM Earning Cap
         if (platform.max_earn > 0) {
             const currentPlatformEarn = await RevenueLog.sum('user_earning', {
                 where: {

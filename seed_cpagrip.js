@@ -10,23 +10,26 @@ async function seedCPAGrip() {
         // Sync the model to ensure table exists
         await Platform.sync();
 
-        // Check if CPAGrip already exists
-        const existing = await Platform.findOne({ where: { name: 'CPAGrip' } });
+        // 1. Update/Create CPAGrip (The "now available thing") -> Limit 12
+        const cpaGrip = await Platform.findOne({ where: { name: 'CPAGrip' } });
+        const cpaConfig = {
+            type: 'external_iframe',
+            script_id: '1870790',
+            script_url: 'https://ridefiles.net/script_include.php?id=1870790',
+            route: 'cpagrip',
+            free_limit: 12, // User requested limit 12
+            paid_limit: 12
+        };
 
-        if (existing) {
+        if (cpaGrip) {
             console.log('⚠️  CPAGrip platform already exists. Updating...');
-            await existing.update({
+            await cpaGrip.update({
                 category: 'tasks',
                 status: 'enabled',
                 priority: 1,
                 max_earn: 10.00,
                 notes: 'CPAGrip Offerwall - External iframe integration',
-                config: {
-                    type: 'external_iframe',
-                    script_id: '1870790',
-                    script_url: 'https://ridefiles.net/script_include.php?id=1870790',
-                    route: 'cpagrip'
-                }
+                config: cpaConfig
             });
             console.log('✅ CPAGrip platform updated successfully');
         } else {
@@ -37,20 +40,48 @@ async function seedCPAGrip() {
                 priority: 1,
                 max_earn: 10.00,
                 notes: 'CPAGrip Offerwall - External iframe integration',
-                config: {
-                    type: 'external_iframe',
-                    script_id: '1870790',
-                    script_url: 'https://ridefiles.net/script_include.php?id=1870790',
-                    route: 'cpagrip'
-                }
+                config: cpaConfig
             });
             console.log('✅ CPAGrip platform created successfully');
+        }
+
+        // 2. Create "Unity Ads" (The "one more same like that") -> Limit 8, Code 6034362
+        const unityAds = await Platform.findOne({ where: { name: 'Unity Ads' } });
+        const unityConfig = {
+            type: 'unity_sdk', // implied type
+            game_id: '6034362',
+            free_limit: 8,
+            paid_limit: 8
+        };
+
+        if (unityAds) {
+            console.log('⚠️  Unity Ads platform already exists. Updating...');
+            await unityAds.update({
+                category: 'tasks', // "Same like that" (CPAGrip is tasks)
+                status: 'enabled',
+                priority: 2,
+                max_earn: 5.00, // Reasonable default
+                notes: 'Unity Ads - Mobile SDK Integration',
+                config: unityConfig
+            });
+            console.log('✅ Unity Ads platform updated successfully');
+        } else {
+            await Platform.create({
+                name: 'Unity Ads',
+                category: 'tasks', // "Same like that"
+                status: 'enabled',
+                priority: 2,
+                max_earn: 5.00,
+                notes: 'Unity Ads - Mobile SDK Integration',
+                config: unityConfig
+            });
+            console.log('✅ Unity Ads platform created successfully');
         }
 
         await db.close();
         process.exit(0);
     } catch (error) {
-        console.error('❌ Error seeding CPAGrip:', error);
+        console.error('❌ Error seeding platforms:', error);
         console.error(error.stack);
         process.exit(1);
     }
