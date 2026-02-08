@@ -1,0 +1,9 @@
+const db = require('../utils/db');
+
+// In Hybrid mode, the models are instantiated with logic that checks db.isJson
+// However, the `checkConnection` happens later.
+// We need to ensure models use the correct logic.
+// Hack: We'll make defineModel return a proxy that delegates to either Sequelize or JsonCollection
+// based on the runtime flag.
+
+// Let's rewrite db.js one last time to be perfect.
