@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarnRewards Admin - Secure Management Console</title>
+    <meta name="description"
+        content="Manage users, withdrawals, referrals and platform settings for the EarnRewards mobile application.">
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <h2>🎯 EarnRewards</h2>
+            <p>Admin Panel</p>
+        </div>
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active" data-page="dashboard">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-page="users">
+                <span class="icon">👥</span>
+                <span>Users</span>
+            </a>
+            <a href="#" class="nav-item" data-page="withdrawals">
+                <span class="icon">💰</span>
+                <span>Withdrawals</span>
+                <span class="badge" id="pendingBadge">0</span>
+            </a>
+            <a href="#" class="nav-item" data-page="analytics">
+                <span class="icon">📈</span>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="nav-item" data-page="referrals">
+                <span class="icon">🎁</span>
+                <span>Referrals</span>
+            </a>
+            <a href="#" class="nav-item" data-page="settings">
+                <span class="icon">⚙️</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">
+                <span class="icon">🚪</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+                <h1 id="pageTitle">Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <button id="globalRefreshBtn" class="refresh-action-btn" onclick="manualRefresh()"
+                    title="Refresh Page Data">
+                    <span class="icon">🔄</span>
+                    <span class="text">Refresh</span>
+                </button>
+                <div class="status-indicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Connected</span>
+                </div>
+
+                <div class="admin-profile">
+                    <span id="adminEmail">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboard-page">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card purple">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-value" id="totalUsers">-</div>
+                        <div class="stat-change">
+                            <span class="change-badge positive">+<span id="newToday">0</span> today</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card green">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Coins Circulating</div>
+                        <div class="stat-value" id="coinsCirculating">-</div>
+                        <div class="stat-change">
+                            <span class="stat-subtitle">$<span id="coinsUSD">0.00</span> USD</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card blue">
+                    <div class="stat-icon">💎</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Tokens Circulating</div>
+                        <div class="stat-value" id="tokensCirculating">-</div>
+                        <div class="stat-change">
+                            <span class="stat-subtitle">Lifetime: <span id="tokensLifetime">0</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card orange">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Pending Withdrawals</div>
+                        <div class="stat-value" id="pendingWithdrawals">-</div>
+                        <div class="stat-change">
+                            <span class="stat-subtitle">$<span id="pendingAmount">0.00</span> pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card red">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Total Paid Out</div>
+                        <div class="stat-value" id="totalPaid">-</div>
+                        <div class="stat-change">
+                            <span class="stat-subtitle"><span id="paidCount">0</span> withdrawals</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card purple">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Today's Earnings</div>
+                        <div class="stat-value" id="todayCoins">-</div>
+                        <div class="stat-change">
+                            <span class="stat-subtitle"><span id="todayTokens">0</span> tokens</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-icon">🎁</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Total Referrals</div>
+                        <div class="stat-value" id="dashTotalReferrals">-</div>
+                        <div class="stat-change">
+                            <span class="stat-subtitle">Joined via code</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3>User Growth (Last 30 Days)</h3>
+                        <button class="refresh-btn" onclick="loadDashboard()">🔄</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="userGrowthChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3>Earnings Distribution</h3>
+                        <button class="refresh-btn" onclick="loadAnalytics()">🔄</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="earningsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-card">
+                <div class="card-header">
+                    <h3>Recent Activity</h3>
+                    <span class="live-indicator">🔴 LIVE</span>
+                </div>
+                <div id="dashboardActivity" class="activity-list"></div>
+            </div>
+        </div>
+
+        <!-- Users Page -->
+        <div class="page" id="users-page">
+            <div class="page-header">
+                <div class="search-box">
+                    <input type="text" id="userSearch" placeholder="Search by email or phone..."
+                        onkeyup="searchUsers()">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <button class="export-btn" onclick="exportUsers()">📥 Export CSV</button>
+            </div>
+
+            <div class="table-card">
+                <div class="loading" id="users-loading">
+                    <div class="spinner"></div>
+                    <p>Loading users...</p>
+                </div>
+                <div id="users-content" style="display: none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Coins</th>
+                                <th>Tokens</th>
+                                <th>Referral Code</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersBody"></tbody>
+                    </table>
+                    <div class="pagination" id="usersPagination"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Withdrawals Page -->
+        <div class="page" id="withdrawals-page">
+            <div class="page-header">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterWithdrawals('all')">All</button>
+                    <button class="filter-tab" onclick="filterWithdrawals('pending')">Pending</button>
+                    <button class="filter-tab" onclick="filterWithdrawals('paid')">Paid</button>
+                    <button class="filter-tab" onclick="filterWithdrawals('rejected')">Rejected</button>
+                </div>
+                <button class="export-btn" onclick="exportWithdrawals()">📥 Export CSV</button>
+            </div>
+
+            <div class="table-card">
+                <div class="loading" id="withdrawals-loading">
+                    <div class="spinner"></div>
+                    <p>Loading withdrawals...</p>
+                </div>
+                <div id="withdrawals-content" style="display: none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Address</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdrawalsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div class="page" id="analytics-page">
+            <div class="analytics-grid">
+                <div class="chart-card full-width">
+                    <div class="card-header">
+                        <h3>Daily Earnings Trend</h3>
+                        <select id="trendDays" onchange="loadAnalytics()">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3>Coin Sources</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="coinSourcesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3>Token Sources</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="tokenSourcesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Page -->
+        <div class="page" id="activity-page">
+            <div class="page-header">
+                <h2>Real-Time Activity Feed</h2>
+                <div class="activity-filters">
+                    <button class="filter-btn active" onclick="filterActivity('all')">All</button>
+                    <button class="filter-btn" onclick="filterActivity('earnings')">Earnings</button>
+                    <button class="filter-btn" onclick="filterActivity('withdrawals')">Withdrawals</button>
+                </div>
+            </div>
+
+            <div class="activity-feed" id="activityFeed">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading activity...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referrals Page -->
+        <div class="page" id="referrals-page">
+            <!-- Referral Stats -->
+            <div class="stats-grid">
+                <div class="stat-card purple">
+                    <div class="stat-icon">🎁</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Total Referrals</div>
+                        <div class="stat-value" id="totalReferrals">-</div>
+                        <div class="stat-change">
+                            <span class="change-badge positive">+<span id="referralsToday">0</span> today</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-icon">👤</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Active Referrers</div>
+                        <div class="stat-value" id="activeReferrers">-</div>
+                        <div class="stat-change">
+                            <span class="stat-subtitle">Unique users who referred</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Referrals This Week</div>
+                        <div class="stat-value" id="referralsWeek">-</div>
+                        <div class="stat-change">
+                            <span class="stat-subtitle">Past 7 days</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h2>Referral Breakdown by Email</h2>
+                <div class="search-box">
+                    <input type="text" id="referralSearch" placeholder="Search referrer email or code..."
+                        onkeyup="searchReferrals()">
+                    <span class="search-icon">🔍</span>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="loading" id="referrals-loading">
+                    <div class="spinner"></div>
+                    <p>Loading referrals...</p>
+                </div>
+                <div id="referrals-content" style="display: none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Referrer Email</th>
+                                <th>Referral Code</th>
+                                <th>Total Joined</th>
+                                <th>Last Referral</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="referralsBody"></tbody>
+                    </table>
+                    <div class="pagination" id="referralsPagination"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+
+        <div class="page" id="settings-page">
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3>⚙️ Platform Settings</h3>
+                    <p style="color: #64748b; margin-bottom: 20px;">Changes here will apply to the mobile app
+                        immediately</p>
+
+                    <div class="setting-item">
+                        <label>Minimum Withdrawal (USD)</label>
+                        <input type="number" id="minWithdrawalInput" value="5.00" step="0.01" min="1">
+                        <small>Minimum amount users can withdraw</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label>Coin to USD Rate</label>
+                        <input type="number" id="coinRateInput" value="500" step="1" min="1">
+                        <small><span id="ratePreview">500 coins = $1.00</span></small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label>Daily Ad Limit</label>
+                        <input type="number" id="adLimitInput" value="20" step="1" min="1" max="100">
+                        <small>Maximum ads users can watch per day</small>
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                        <div id="settingsSaveStatus" style="margin-bottom: 10px; color: #10b981; display: none;">
+                            ✅ Settings saved successfully!
+                        </div>
+                        <button class="save-btn" onclick="saveSettings()">💾 Save Changes</button>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>👤 Admin Account</h3>
+                    <div class="setting-item">
+                        <label>Email</label>
+                        <input type="email" id="adminEmailInput" readonly style="background: #f1f5f9;">
+                    </div>
+                    <div class="setting-item">
+                        <label>Last Login</label>
+                        <input type="text" id="lastLoginInput" readonly style="background: #f1f5f9;" value="Just now">
+                    </div>
+                    <button class="save-btn" onclick="logout()" style="background: #ef4444;">🚪 Logout</button>
+                </div>
+
+                <div class="settings-card">
+                    <h3>📊 System Info</h3>
+                    <div class="info-item">
+                        <span>Server Status:</span>
+                        <span class="status-badge online" id="serverStatus">Online</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Database:</span>
+                        <span class="status-badge online" id="dbStatus">Connected</span>
+                    </div>
+                    <div class="info-item">
+                        <span>API Endpoint:</span>
+                        <span style="font-family: monospace; font-size: 12px;">http://localhost:5000</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Version:</span>
+                        <span>v1.0.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
